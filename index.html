@@ -35,9 +35,7 @@
       const STATUS_OPTIONS = [
       "Beklemede",
       "Montaj Sürecinde",
-      "Montaj Bitti - Nakit",
-      "Montaj Bitti - Kart"
-      "Montaj Bitti - Havale"
+      "Montaj Bitti",
       "Montaj İptal Oldu",
       "Garantiye Gitti"
     ];
@@ -468,9 +466,7 @@ function updateOperationRow(index, key, value, shouldRender = false) {
         total: state.totalRemoteCount || state.records.length,
         pending: state.records.filter((r) => r.status === "Beklemede").length,
         inProgress: state.records.filter((r) => r.status === "Montaj Sürecinde").length,
-        completed: state.records.filter((r) => r.status === "Montaj Bitti - Nakit").length,
-        completed: state.records.filter((r) => r.status === "Montaj Bitti - Kart").length,
-        completed: state.records.filter((r) => r.status === "Montaj Bitti - Havale").length,
+        completed: state.records.filter((r) => r.status === "Montaj Bitti").length,
       };
     }
 
