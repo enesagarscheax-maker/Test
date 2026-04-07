@@ -138,6 +138,7 @@ function plateHistory(plate, currentId = null) {
     const state = {
       records: [],
       totalRemoteCount: 0,
+      todayFinishedRevenueAll: 0,
       search: "",
       searchDraft: "",
       selectedId: null,
@@ -227,6 +228,32 @@ function plateHistory(plate, currentId = null) {
       const total = Number(totalPart) || 0;
       return { data, total };
     }
+    async function dbFetchTodayFinishedRevenue() {
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+
+  const params = new URLSearchParams();
+  params.set("select", "notes,created_at,status");
+  params.set("status", "eq.Montaj Bitti");
+  params.set("created_at", `gte.${start}`);
+  params.append("created_at", `lt.${end}`);
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/records?${params.toString()}`, {
+    headers: apiHeaders(),
+  });
+
+  if (!res.ok) throw new Error("Bugünkü ciro alınamadı");
+
+  const data = await res.json();
+
+  return (data || []).reduce((sum, row) => {
+    const meta = safeParseJson(row.notes, {});
+    const ops = Array.isArray(meta.operations) ? meta.operations : [];
+    const total = ops.reduce((s, op) => s + Number(op.fee || 0), 0);
+    return sum + total;
+  }, 0);
+}
 
     function formToPayload(form, existingRecordNo = null) {
   const cleanedOperations = (form.operations || []).filter(
@@ -364,22 +391,27 @@ function plateHistory(plate, currentId = null) {
     }
 
     async function loadRecordsFromDb() {
-      state.loading = true;
-      render();
-      try {
-        const { data, total } = await dbFetchRecords({
-          offset: 0,
-          limit: state.visibleCount,
-          search: state.search,
-          status: state.statusFilter,
-        });
-        state.records = data.map(mapDbRow);
-        state.totalRemoteCount = total;
-      } finally {
-        state.loading = false;
-        render();
-      }
-    }
+  state.loading = true;
+  render();
+  try {
+    const [recordsResult, todayRevenue] = await Promise.all([
+      dbFetchRecords({
+        offset: 0,
+        limit: state.visibleCount,
+        search: state.search,
+        status: state.statusFilter,
+      }),
+      dbFetchTodayFinishedRevenue(),
+    ]);
+
+    state.records = recordsResult.data.map(mapDbRow);
+    state.totalRemoteCount = recordsResult.total;
+    state.todayFinishedRevenueAll = todayRevenue;
+  } finally {
+    state.loading = false;
+    render();
+  }
+}
 
     function resizeImage(file, maxWidth = 1280, quality = 0.72) {
       return new Promise((resolve, reject) => {
@@ -934,7 +966,7 @@ h3 {
       const selected = selectedRecord();
       const showModal = !!state.selectedId && !!selected;
       const grand = grandTotal(rows);
-      const todayGrand = todayTotal(rows);
+      const todayGrand = state.todayFinishedRevenueAll || 0;
       const todayRecordsCount = todayCount(rows);
       const totalCount = state.totalRemoteCount;
       const canShowMore = state.records.length < state.totalRemoteCount;
