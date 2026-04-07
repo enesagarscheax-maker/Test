@@ -659,16 +659,18 @@ async function updateCurrentRecord() {
     }
 
     async function updateRecordStatus(id, status) {
-      try {
-        await dbUpdateStatus(id, status);
-        const local = state.records.find((r) => r.id === id);
-        if (local) local.status = status;
-        render();
-      } catch (e) {
-        alert("Durum güncellenemedi");
-        console.error(e);
-      }
-    }
+  try {
+    await dbUpdateStatus(id, status);
+
+    const local = state.records.find((r) => r.id === id);
+    if (local) local.status = status;
+
+    await loadRecordsFromDb();
+  } catch (e) {
+    alert("Durum güncellenemedi");
+    console.error(e);
+  }
+}
 
     async function updateRecordTechnician(id, technician) {
       const record = state.records.find((r) => r.id === id);
