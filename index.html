@@ -468,7 +468,9 @@ function updateOperationRow(index, key, value, shouldRender = false) {
         total: state.totalRemoteCount || state.records.length,
         pending: state.records.filter((r) => r.status === "Beklemede").length,
         inProgress: state.records.filter((r) => r.status === "Montaj Sürecinde").length,
-        completed: state.records.filter((r) => r.status === "Montaj Bitti").length,
+        completed: state.records.filter((r) => r.status === "Montaj Bitti - Nakit").length,
+        completed: state.records.filter((r) => r.status === "Montaj Bitti - Kart").length,
+        completed: state.records.filter((r) => r.status === "Montaj Bitti - Havale").length,
       };
     }
 
