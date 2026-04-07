@@ -262,17 +262,25 @@ function plateHistory(plate, currentId = null) {
 };
 }
     async function dbInsertRecord(form) {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/records`, {
-        method: "POST",
-        headers: apiHeaders({
-          "Content-Type": "application/json",
-          Prefer: "return=representation",
-        }),
-        body: JSON.stringify(formToPayload(form)),
-      });
-      if (!res.ok) throw new Error("Kayıt eklenemedi");
-      return await res.json();
-    }
+  const payload = formToPayload(form);
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/records`, {
+    method: "POST",
+    headers: apiHeaders({
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+    }),
+    body: JSON.stringify(payload),
+  });
+
+  const text = await res.text();
+  console.log("INSERT STATUS:", res.status);
+  console.log("INSERT RESPONSE:", text);
+  console.log("INSERT PAYLOAD:", payload);
+
+  if (!res.ok) throw new Error(`Kayıt eklenemedi: ${text}`);
+  return text ? JSON.parse(text) : [];
+}
 
     async function dbUpdateRecord(id, form, existingRecordNo) {
       const payload = formToPayload(form, existingRecordNo);
