@@ -92,7 +92,9 @@ function isToday(value) {
 
 function todayTotal(records) {
   return (records || [])
-    .filter((r) => isToday(r.createdAt))
+    .filter((r) => 
+      isToday(r.createdAt) && r.status === "Montaj Bitti"
+    )
     .reduce((sum, r) => sum + recordTotal(r), 0);
 }
 
