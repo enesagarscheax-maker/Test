@@ -589,7 +589,7 @@ async function saveRecord() {
     state.visibleCount = PAGE_SIZE;
     await loadRecordsFromDb();
   } catch (e) {
-    alert("Kayıt veritabanına eklenemedi");
+    alert("Kayıt veritabanına eklenemedi: " + (e.message || "Bilinmeyen hata"));
     console.error(e);
   }
 }
@@ -628,9 +628,9 @@ async function updateCurrentRecord() {
     signatureHandlersBound = false;
     await loadRecordsFromDb();
   } catch (e) {
-    alert("Kayıt güncellenemedi");
-    console.error(e);
-  }
+  alert("Kayıt güncellenemedi: " + (e.message || "Bilinmeyen hata"));
+  console.error(e);
+}
 }
 
     function cancelEdit() {
@@ -653,9 +653,9 @@ async function updateCurrentRecord() {
         }
         await loadRecordsFromDb();
       } catch (e) {
-        alert("Kayıt silinemedi");
-        console.error(e);
-      }
+  alert("Kayıt silinemedi: " + (e.message || "Bilinmeyen hata"));
+  console.error(e);
+}
     }
 
     async function updateRecordStatus(id, status) {
@@ -667,9 +667,9 @@ async function updateCurrentRecord() {
 
     await loadRecordsFromDb();
   } catch (e) {
-    alert("Durum güncellenemedi");
-    console.error(e);
-  }
+  alert("Durum güncellenemedi: " + (e.message || "Bilinmeyen hata"));
+  console.error(e);
+}
 }
 
     async function updateRecordTechnician(id, technician) {
@@ -1049,8 +1049,14 @@ h3 {
               </div>
             </div>
 
-            ${state.loading ? `<div class="mb-4 rounded-2xl border border-white/10 bg-zinc-900/90 p-4 text-sm text-zinc-300">Veriler yükleniyor...</div>` : ""}
-
+            ${state.loading ? `
+  <div class="fixed bottom-4 right-4 z-[9999] rounded-2xl border border-white/10 bg-black/80 px-4 py-3 text-sm text-white shadow-2xl backdrop-blur-xl">
+    <div class="flex items-center gap-3">
+      <div class="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"></div>
+      <span>Veriler güncelleniyor...</span>
+    </div>
+  </div>
+` : ""}
             ${!state.tabletMode ? `
               <div class="mb-4 rounded-3xl border border-white/10 bg-zinc-900/90 text-white">
                 <div class="p-6 pb-3"><h2 class="text-lg font-semibold">Firma Bilgileri</h2></div>
